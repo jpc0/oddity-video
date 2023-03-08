@@ -264,6 +264,10 @@ impl Decoder {
     }
   }
 
+  pub fn length(&self) -> i64 {
+      return self.reader.input.duration();
+  }
+
   /// Create a decoder from a `Reader` instance. Optionally provide
   /// dimensions to resize frames to.
   /// 
