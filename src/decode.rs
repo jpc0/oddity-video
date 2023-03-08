@@ -172,6 +172,8 @@ impl Decoder {
     Ok((timestamp, frame))
   }
 
+
+
   /// Decode frames through iterator interface. This is similar to `decode_raw`
   /// but it returns frames through an infinite iterator.
   pub fn decode_raw_iter(
@@ -208,6 +210,28 @@ impl Decoder {
     copy_frame_props(&frame, &mut frame_scaled);
 
     Ok(frame_scaled)
+  }
+
+  /// Decode a single frame and return the raw ffmpeg `AvFrame` without passing
+  /// it through the scaler.
+  pub fn decode_raw_no_scaler(&mut self) -> Result<RawFrame> {
+    let mut frame: Option<RawFrame> = None;
+    while frame.is_none() {
+      let mut packet = self
+        .reader
+        .read(self.reader_stream_index)?
+        .into_inner();
+      packet.rescale_ts(self.stream_time_base(), self.decoder_time_base);
+
+      self.decoder.send_packet(&packet)
+        .map_err(Error::BackendError)?;
+
+      frame = self.decoder_receive_frame()?;
+    }
+
+    let frame = frame.unwrap();
+
+    Ok(frame)
   }
 
   /// Get the decoders input size (resolution dimensions): width and height.
