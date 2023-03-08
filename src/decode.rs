@@ -265,7 +265,7 @@ impl Decoder {
   }
 
   pub fn length(&self) -> i64 {
-      return self.reader.input.duration();
+      return self.reader.input.duration() / ffmpeg::ffi::AV_TIME_BASE_Q.den as i64;
   }
 
   /// Create a decoder from a `Reader` instance. Optionally provide
